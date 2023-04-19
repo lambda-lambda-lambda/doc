@@ -48,10 +48,10 @@
 
 
     <section class="readme">
-        <article><h1>lambda-lambda-lambda</h1>
-<p><a href="https://badge.fury.io/js/lambda-lambda-lambda"><img src="https://badge.fury.io/js/lambda-lambda-lambda.svg" alt="npm version"></a> <a href="https://www.npmjs.com/package/lambda-lambda-lambda"><img src="https://img.shields.io/npm/dm/lambda-lambda-lambda.svg" alt=""></a> <a href="https://app.travis-ci.com/github/lambda-lambda-lambda/router"><img src="https://api.travis-ci.com/lambda-lambda-lambda/router.svg?branch=master" alt="Build Status"></a> <a href="https://coveralls.io/r/lambda-lambda-lambda/router?branch=master"><img src="https://coveralls.io/repos/lambda-lambda-lambda/router/badge.svg?branch=master" alt="Coverage"></a></p>
+        <article><h1>L³ router</h1>
+<p><a href="https://badge.fury.io/js/@lambda-lambda-lambda%2Frouter"><img src="https://badge.fury.io/js/@lambda-lambda-lambda%2Frouter.svg" alt="npm version"></a> <a href="https://www.npmjs.com/package/@lambda-lambda-lambda/router"><img src="https://img.shields.io/npm/dm/@lambda-lambda-lambda/router.svg" alt=""></a> <a href="https://app.travis-ci.com/github/lambda-lambda-lambda/router"><img src="https://api.travis-ci.com/lambda-lambda-lambda/router.svg?branch=master" alt="Build Status"></a> <a href="https://coveralls.io/r/lambda-lambda-lambda/router?branch=master"><img src="https://coveralls.io/repos/lambda-lambda-lambda/router/badge.svg?branch=master" alt="Coverage"></a></p>
 <p>AWS <a href="https://docs.aws.amazon.com/lambda/latest/dg/lambda-edge.html">CloudFront Lambda@Edge</a> serverless application router.</p>
-<p><img src="https://raw.githubusercontent.com/nuxy/lambda-lambda-lambda/master/package.png" alt="lambda-lambda-lambda"></p>
+<p><img src="https://raw.githubusercontent.com/lambda-lambda-lambda/router/master/package.png" alt="lambda-lambda-lambda"></p>
 <h2>Features</h2>
 <ul>
 <li><a href="#route-handler">Routes</a> and URI <a href="#resource-handler">Resource</a> support.</li>
@@ -76,7 +76,7 @@
 </ul>
 <h3>Manual installation</h3>
 <p>Install package dependencies using <a href="https://npmjs.com">NPM</a>.</p>
-<pre><code>$ npm install lambda-lambda-lambda
+<pre><code>$ npm install @lambda-lambda-lambda/router
 </code></pre>
 <h2>Usage</h2>
 <p>Unless your application requires <a href="#complex-routing">complex routing</a>, route handlers can be defined within the <a href="https://docs.aws.amazon.com/lambda/latest/operatorguide/global-scope.html">Lambda function scope</a>.  Otherwise <a href="#route-handler">route handlers</a> are loaded from <code>appName/src/routes</code> directory in hierarchical order, starting with the default handler <code>appName/src/app.js</code> as described below.</p>
@@ -86,7 +86,7 @@
 'use strict';
 
 // Load module.
-const Router = require('lambda-lambda-lambda');
+const Router = require('@lambda-lambda-lambda/router');
 
 /**
  * @see AWS::Serverless::Function
@@ -125,7 +125,7 @@ exports.handler = (event, context, callback) => {
 'use strict';
 
 // Load module.
-const Router = require('lambda-lambda-lambda');
+const Router = require('@lambda-lambda-lambda/router');
 
 /**
  * @see AWS::Serverless::Function
@@ -141,7 +141,7 @@ exports.handler = async (event) => {
 };
 </code></pre>
 <h2>Common methods</h2>
-<p>The following methods are supported based on the class context.  For further information please refer to the <a href="#cli-options">JSDoc</a> generated <a href="https://nuxy.github.io/lambda-lambda-lambda">documentation</a> which includes method <code>arguments</code>/<code>return</code> types and general usage examples.</p>
+<p>The following methods are supported based on the class context.  For further information please refer to the <a href="#cli-options">JSDoc</a> generated <a href="https://lambda-lambda-lambda.github.io/doc">documentation</a> which includes method <code>arguments</code>/<code>return</code> types and general usage examples.</p>
 <table>
 <thead>
 <tr>
@@ -498,7 +498,7 @@ module.exports = async (req, res, next) => {
 </code></pre>
 <p>See <a href="https://github.com/lambda-lambda-lambda/example/tree/master/restfulApiHandler/src/middleware">restfulApiHandler</a> example for more complex use cases.</p>
 <h2>Testing</h2>
-<p>How you handle this is entirely up to the test framework/runner you're using. For examples using <a href="https://mochajs.org/">Mocha</a> and <a href="https://www.chaijs.com">Chai</a>, please refer to the <a href="https://github.com/nuxy/lambda-lambda-lambda/tree/master/test/e2e/async">E2E tests</a> included with this package.</p>
+<p>How you handle this is entirely up to the test framework/runner you're using. For examples using <a href="https://mochajs.org/">Mocha</a> and <a href="https://www.chaijs.com">Chai</a>, please refer to the <a href="https://github.com/lambda-lambda-lambda/router/tree/master/test/e2e/async">E2E tests</a> included with this package.</p>
 <h2>AWS requirements</h2>
 <p>In order to successfully deploy your application you must have <a href="https://docs.aws.amazon.com/config/latest/developerguide/gs-cli.html">set-up your AWS Config</a> and have <a href="https://docs.aws.amazon.com/IAM/latest/UserGuide/id_users_create.html">created an IAM user</a> with the following <a href="https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies_manage.html">policies</a>:</p>
 <ul>
@@ -548,7 +548,7 @@ module.exports = async (req, res, next) => {
 <br class="clear">
 
 <footer>
-    Generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.11</a> on Sat Apr 08 2023 19:50:15 GMT-0700 (Pacific Daylight Time) using the Minami theme.
+    Generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.11</a> on Wed Apr 19 2023 12:24:38 GMT-0700 (Pacific Daylight Time) using the Minami theme.
 </footer>
 
 <script>prettyPrint();</script>
