@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>router/Route.js - Documentation</title>
+    <title>router/Utils.js - Documentation</title>
 
     <script src="scripts/prettify/prettify.js"></script>
     <script src="scripts/prettify/lang-css.js"></script>
@@ -29,7 +29,7 @@
 
 <div id="main">
     
-    <h1 class="page-title">router/Route.js</h1>
+    <h1 class="page-title">router/Utils.js</h1>
     
 
     
@@ -39,7 +39,7 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>/** @module router/Route */
+            <pre class="prettyprint source linenums"><code>/** @module router/Utils */
 
 /**
  *  lambda-lambda-lambda/router
@@ -52,112 +52,206 @@
 
 'use strict';
 
-// Local modules.
-const {getResourceId, isAsyncFunc, isValidFunc, setFuncName} = require('./Utils');
+// Local reference.
+const Utils = this;
 
 /**
- * Handle routing operations for the given Route.
+ * Check if value is an async function.
+ *
+ * @param {AsyncFunction} func
+ *   Async function.
+ *
+ * @return {Boolean}
  *
  * @example
- * // .. sam-app/src/routes/foo.js
- * const routeConfig = {
- *   middleware: [middlewareFunc1, middlewareFunc2],
- *   resource: true || ['get', 'put', 'patch', 'submit'],
- *
- *   index  (req, res) {},
- *   get    (req, res, id) {},
- *   create (req, res) {},
- *   put    (req, res, id) {},
- *   update (req, res) {},
- *   patch  (req, res, id) {},
- *   post   (req, res) {},
- *   submit (req, res, id) {},
- *   delete (req, res, id) {}
- * };
- *
- * module.exports = routeConfig;
+ * const result = isAsyncFunc(async function() {}));
+ * // true
  */
-module.exports = (router, route) => {
-  const path = route.path;
+exports.isAsyncFunc = function(value) {
+  return (value &amp;&amp; (value[Symbol.toStringTag] === 'AsyncFunction'));
+};
 
-  const methodMap = {
-    index: 'get',
-    create: 'put',
-    update: 'patch',
-    delete: 'delete',
-    submit: 'post'
-  };
+/**
+ * Check if value is an Object instance.
+ *
+ * @param {Object}
+ *   Object to check.
+ *
+ * @return {Boolean}
+ *
+ * @example
+ * const result = Utils.isObject({foo: 'bar'});
+ * // true
+ */
+exports.isObject = function(value) {
+  return typeof value === 'object' &amp;&amp; Object.prototype.toString.call(value) === '[object Object]';
+};
 
-  const isResource = !!route.resource;
+/**
+ * Check if object is (or returns) Promise.
+ *
+ * @param {Object} obj
+ *   Promise object.
+ *
+ * @return {Boolean}
+ *
+ * @example
+ * const result = isPromise(new Promise(() => {}));
+ * // true
+ *
+ * const result = function() {
+ *   return Promise.resolve();
+ * };
+ * // true
+ */
+exports.isPromise = function(obj) {
+  return (obj &amp;&amp; (obj[Symbol.toStringTag] === 'Promise' || typeof obj.then === 'function'));
+};
 
-  const uriBase = `${router.prefix}${path}`;
-  const uriPath = getResourceId(router.req.uri(), uriBase);
-  const reqPath = `${uriBase}/${uriPath}`;
+/**
+ * Check if valid URI path.
+ *
+ * @param {String} value
+ *   URI path value.
+ *
+ * @return {Boolean}
+ *
+ * @example
+ * const result = isValidPath('/api/test');
+ * // true
+ */
+exports.isValidPath = function(value) {
+  return /^\/([a-z0-9-_\/]+)?$/.test(value);
+};
 
-  // Ensure route matches request URI, skip otherwise.
-  if ((!uriPath &amp;&amp; !isResource &amp;&amp; uriBase !== router.req.uri()) || (uriPath &amp;&amp; isResource &amp;&amp; reqPath !== router.req.uri())) {
-    return;
+/**
+ * Check if valid Route/Middleware function.
+ *
+ * @param {Function} value
+ *   Route function.
+ *
+ * @return {Boolean}
+ *
+ * @example
+ * const result = isValidFunc((req, res, next) => {});
+ * // true
+ */
+exports.isValidFunc = function(value) {
+  return (typeof value === 'function' &amp;&amp; value.length >= 1 &amp;&amp; value.length &lt;= 3);
+};
+
+/**
+ * Check if valid Request/Route.
+ *
+ * @param {String} uri
+ *   Request URI.
+ *
+ * @param {String} path
+ *   Route path value.
+ *
+ * @param {Function} func
+ *   Route function.
+ *
+ * @return {Boolean}
+ *
+ * @example
+ * const result = isValidRoute('/api/test/123456', '/api/test', (req, res) => {}));
+ * // true
+ */
+exports.isValidRoute = function(uri, path, func) {
+  if (Utils.isValidFunc(func) &amp;&amp; !/^route:/.test(func.name)) {
+    return !!uri.match(new RegExp(`^${path}(\/[a-z0-9-_]+)?$`, 'i')); // nosemgrep
   }
 
-  // Add route-bound middleware, if available.
-  if (route.middleware) {
+  return (uri === path);
+};
 
-    /* istanbul ignore else (tested in: test/e2e) */
-    if (Array.isArray(route.middleware)) {
-      route.middleware.forEach(func => router.use(path, func));
-    } else {
-      router.use(path, route.middleware);
-    }
+/**
+ * Return URI fragment, if Route is a resource.
+ *
+ * @param {String} uri
+ *   Request URI.
+ *
+ * @param {String} path
+ *   Route path value.
+ *
+ * @return {String|undefined}
+ *
+ * @example
+ * const result = getResourceId('/api/test/abc123', '/api/test');
+ * // abc123
+ */
+exports.getResourceId = function(uri, path) {
+  const fragment = uri.replace(new RegExp(`^(?:${path}(?:\/([a-z0-9-_]+))?)$`, 'i'), '$1'); // nosemgrep
+  if (fragment !== uri) {
+    return fragment;
   }
+};
 
-  // Map Route-defined action -> Request method.
-  for (let key in route) {
-    const method = methodMap[key] || key;
+/**
+ * Set name for a given function (inline).
+ *
+ * @param {Function} func
+ *   Route function.
+ *
+ * @param {Function} value
+ *   Function name.
+ *
+ * @example
+ * const func = function() {};
+ * setFuncName(func, 'test');
+ * func.name
+ * // test
+ */
+exports.setFuncName = function(func, value) {
+  Object.defineProperty(func, 'name', {value});
+};
 
-    if (!isValidFunc(router[method]) || !isValidFunc(route[key])) {
-      continue;
-    }
+/**
+ * Get executed module parent directory.
+ *
+ * @return {String}
+ *
+ * @example
+ * const dir = moduleParent();
+ * // path/to/app/parent/directory
+ */
+exports.moduleParent = function() {
+  const moduleParents = Object.values(require.cache)
+    .filter((m) => m.children.includes(module));
 
-    let routeFunc = route[key];
-    let entityType = 'route';
+  return moduleParents[0]?.parent.path;
+};
 
-    // Support - Boolean | Array&lt;methodMapKey>
-    if (isResource &amp;&amp; (route.resource === true || (Array.isArray(route.resource) &amp;&amp; route.resource.includes(key)))) {
-      const resourceId = uriPath;
-
-      // Add resource ID to Route as argument.
-      const oldFunc = routeFunc;
-
-      if (isAsyncFunc(oldFunc)) {
-
-        // Asynchronous handling.
-        routeFunc = async (req, res) => {
-          return await oldFunc(req, res, resourceId);
-        };
-      } else {
-
-        // Synchronous handling.
-        routeFunc = (req, res) => {
-          return oldFunc(req, res, resourceId);
-        };
-      }
-
-      // .. send error response.
-      if (!resourceId) {
-        routeFunc = (req, res) => {
-          res.setHeader('Cache-Control', 'max-age=0');
-          res.status(404).send();
-        };
-      }
-
-      entityType = 'resource';
-    }
-
-    setFuncName(routeFunc, `${entityType}:${key}`);
-
-    // Execute the route-defined function.
-    router[method](path, routeFunc);
-  }
+/**
+ * Execute events; propagate variable state.
+ *
+ * @param {Array} promises
+ *   Array of promised events.
+ *
+ * @return {Promise}
+ *
+ * @example
+ *   const state = {};
+ *
+ *   const promises = [
+ *     ()  => Promise.resolve(a),
+ *     (b) => Promise.resolve(b),
+ *     (c) => Promise.resolve(c),
+ *
+ *     ..
+ *   ];
+ *
+ *   promiseEvents(promises)
+ *     .then(obj => obj)
+ *     .catch(function(err) {
+ *
+ *     });
+ */
+exports.promiseEvents = function(promises) {
+  return promises.reduce(function(current, next) {
+    return current.then(next);
+  }, Promise.resolve([]));
 };
 </code></pre>
         </article>
